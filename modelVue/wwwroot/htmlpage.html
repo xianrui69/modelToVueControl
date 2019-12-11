@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="../JS/jquery.min.js"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet" />
+    <link href="js/EasyUI/themes/insdep/easyui.css" rel="stylesheet" />
+    <script src="js/EasyUI/jquery.easyui.min.up.js"></script>
+    <script src="js/EasyUI/easyui-lang-zh_CN.js"></script>
+    <script src="../JS/init.js"></script>
+    <script src="../JS/jquery.extend.js"></script>
+    <script src="../JS/vue.js"></script>
+    <script src="js/layer/layer.js"></script>
+</head>
+<body>
+    <br />
+    <p>=============================自动布局1===============================================</p>
+    <br />
+    <e_autoform id="sel_form1" formUrl="/values/get/getSearchDto">
+    </e_autoform>
+    <br />
+    <p>=============================自动布局2===============================================</p>
+    <br />
+    <!--只显示一个-->
+    <e_autoform id="sel_form2" formUrl="/values/get/getSearchDto" rowShowCount="1">
+    </e_autoform>
+    <input id="txt" class="easyui-textbox" data-options="multiline:'true'" style="width:500px;height:280px">
+    <br />
+    <p>=============================排版布局===============================================</p>
+    <br />
+    <e_autoform id="sel_form" formUrl="/values/get/getSearchDto">
+        $查询内容$
+        $String$
+        $String1$
+        $string$
+        $string1$
+        $无效字段名$
+    </e_autoform>
+    <br />
+    <p2><a href="/htmlpage-1.html">查看表格的演示，完成表单时，可以编辑列表的数据</a></p2>
+    <br />
+    <br />
+    <p2>代码图</p2>
+    <br />
+    <img src="img/show.png" />
+    <br />
+    <p2>脚本内容</p2>
+    <br />
+    <img src="img/show2.png" />
+    <br />
+    <p2>请求接口</p2>
+    <span>原理：通过请求把模型返回成列表，页面根据模型属性列表转换成表单</span>
+    <br />
+    <img src="img/show3.png" />
+    <img src="img/show4.png" />
+    <br />
+    <p2>模型截图</p2>
+    <br />
+    <img src="img/show5.png" />
+    <img src="img/show6.png" />
+    <!--需要在正文下面 解析用的js-->
+    <script src="../JS/easyUIByVueExten.js"></script>
+    <script>
+        alert = comFunc.alert;
+        var search = {
+            vue: $('#sel_form2').data('vue'),
+            getControl: $('#sel_form2').data('getControl'),
+            contrls: {
+                $comOption: {
+                    width: 170,
+                    onSelect: function (newVal) {
+                        alert('onSelect触发（共用），可以在这里调用搜索');
+                        clickBTN();
+                    },
+                    onChange: function (newVal) {
+                        alert('onChange触发（共用），可以在这里调用搜索');
+                        clickBTN();
+                    },
+                },
+                查询内容: {
+                    prompt: '我是代码设置的提示文本',
+                    searcher: () => alert('执行搜索方法')
+                }
+            },
+            init: function () {
+                $('#sel_form2').data('loadControls')(this.contrls);
+                //给单独的设置样式
+                this.getControl('查询内容').parent('span').css({ 'margin-left': '14px' });
+                console.log('这两个对象是所有控件的设置方法（this.vue.CNControls、this.vue.ENControls）', this.vue.CNControls, this.vue.ENControls);
+                console.log(this.vue.CNControls['查询内容']('options'));
+                console.log('可以注释下面的代码看看对比');
+                this.vue.CNControls['查询内容']('setValue', '代码设置的内容');
+            },
+            searchFunc: function () {
+                if (document.readyState !== 'complete') return;
+                var data = page.main.search.vue.getVals();
+                page.main.tbPlan('load', data);
+            }
+        }
+        $(() => search.init());
+        function clickBTN() {
+            var data = search.vue.getVals();
+            if (!data) {
+                $('#txt').textbox('setText', '验证不通过');
+            } else $('#txt').textbox('setText', formatJson(JSON.stringify(data)).trim());
+        }
+
+        // 工具方法
+        var formatJson = function (json, options) {
+            var reg = null,
+                formatted = '',
+                pad = 0,
+                PADDING = '    '; // one can also use '\t' or a different number of spaces
+            // optional settings
+            options = options || {};
+            // remove newline where '{' or '[' follows ':'
+            options.newlineAfterColonIfBeforeBraceOrBracket = (options.newlineAfterColonIfBeforeBraceOrBracket === true) ? true : false;
+            // use a space after a colon
+            options.spaceAfterColon = (options.spaceAfterColon === false) ? false : true;
+
+            // begin formatting...
+
+            // make sure we start with the JSON as a string
+            if (typeof json !== 'string') {
+                json = JSON.stringify(json);
+            }
+            // parse and stringify in order to remove extra whitespace
+            json = JSON.parse(json);
+            json = JSON.stringify(json);
+
+            // add newline before and after curly braces
+            reg = /([\{\}])/g;
+            json = json.replace(reg, '\r\n$1\r\n');
+
+            // add newline before and after square brackets
+            reg = /([\[\]])/g;
+            json = json.replace(reg, '\r\n$1\r\n');
+
+            // add newline after comma
+            reg = /(\,)/g;
+            json = json.replace(reg, '$1\r\n');
+
+            // remove multiple newlines
+            reg = /(\r\n\r\n)/g;
+            json = json.replace(reg, '\r\n');
+
+            // remove newlines before commas
+            reg = /\r\n\,/g;
+            json = json.replace(reg, ',');
+
+            // optional formatting...
+            if (!options.newlineAfterColonIfBeforeBraceOrBracket) {
+                reg = /\:\r\n\{/g;
+                json = json.replace(reg, ':{');
+                reg = /\:\r\n\[/g;
+                json = json.replace(reg, ':[');
+            }
+            if (options.spaceAfterColon) {
+                reg = /\:/g;
+                json = json.replace(reg, ': ');
+            }
+
+            $.each(json.split('\r\n'), function (index, node) {
+                var i = 0,
+                    indent = 0,
+                    padding = '';
+
+                if (node.match(/\{$/) || node.match(/\[$/)) {
+                    indent = 1;
+                } else if (node.match(/\}/) || node.match(/\]/)) {
+                    if (pad !== 0) {
+                        pad -= 1;
+                    }
+                } else {
+                    indent = 0;
+                }
+
+                for (i = 0; i < pad; i++) {
+                    padding += PADDING;
+                }
+                formatted += padding + node + '\r\n';
+                pad += indent;
+            });
+            return formatted;
+        };
+                                                                    //---------------------
+                                                                    //    作者：熬夜是小狗
+                                                                    //来源：CSDN
+                                                                    //原文：https://blog.csdn.net/icannotdebug/article/details/79418935
+                                                                    //版权声明：本文为博主原创文章，转载请附上博文链接！
+    </script>
+</body>
+</html>

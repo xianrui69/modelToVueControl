@@ -1,0 +1,54 @@
+JQuery EasyUI 1.5.x of Insdep Theme 1.0.4 ��ʽ��
+
+��һ�ڸ���Ԥ��:https://www.insdep.com/index.php?m=content&c=index&a=lists&catid=163
+
+���� 
+Insdep theme�ǻ���EasyUI 1.5.x ��һ����ѵ������������ӵ�аٶȱ༭����cropper��Highcharts��justgage��plupload�ȸ�����Ӧ������ĵ���������������������Ҹ��ೣ��Jquery������������С����ڻ��ṩ��������⡢��������������������ʽ��
+
+��ʾ��ַ��https://www.insdep.com/example/
+���ص�ַ��https://www.insdep.com
+�ʴ��ַ��https://bbs.insdep.com
+
+��Ŀ��ַ��http://git.oschina.net/weavors/JQuery-EasyUI-1.5.x-Of-Insdep-Theme
+
+QQ����Ⱥ��184075694 �����ȷ����������⼰�ڲ����
+
+������־��https://www.insdep.com/list-107-1.html
+
+���ڼ����� 
+�����������ͬ���ٷ���IE���֧��IE9������IE10+�����Ӱ���������ܡ�
+ע�������ṩ���ϱ�����Ķ���Chrome�ں�����ͻ��ˣ�������Ҫ����ϵQQ��228388330
+
+������������ 
+������֧����ʽƽ��������������ʽ��ƽ���л���ÿһ�θ��¶�����ֱ�Ӹ�������������Է���ʹ�á�
+
+ʹ��ǰ�ض��� 
+�뽫���ԭĬ����ʽ���ɱ������easyui.css���ɣ�������Ҫ�������jquery.insdep-extend.min.js�������ʼ����չ�ļ��� jquery.easyui.min.js��jquery.min.js���ǹٷ�ԭ�棬δ�����κ��޸ģ�����ѡ����ʹ�á�
+
+ע������ļ�����ʽ˵�� ��ע���ļ�����˳��������ʾ�� 
+1��easyui.css 
+(��������EasyUI�����ʽ�ļ�)
+
+2��easyui_animation.css 
+(easyui�Ķ������ӵĶ���Ч����ʽ������������������룬����ʽ�����easyui����Ӱ��)
+
+3��easyui_plus.css 
+(easyui�Ķ�����ǿ��ʽ,�ں����� insdep_xxx.css �����������ʽ,��������ɵ�������insdep_xxx.css�����룬����ʽ�����easyui����Ӱ��)
+
+4��insdep_theme_default.css 
+(InsdepĬ��������ʽ�ļ�,ע��������ʽָ����¼ҳ�桢����̨����Ҫҳ������⣬����㲻��Ҫ���Բ��������ʽ)
+
+5��icon.css 
+(��������EasyUIͼ����ʽ�ļ�)(ע��������֧��iconfontͼ�꣬����㲻��Ҫ�ٷ�ͼ����Բ����룬��ϸ����������ġ�����iconfontͼ�ꡱ)
+
+6��jquery.min.js 
+(ԭ�ٷ��ṩ��jQuery v1.11.3��δ�����κ��޸�)
+
+7��jquery.easyui.min.js 
+(ԭ�ٷ��ṩ��jQuery EasyUI 1.5.1��δ�����κ��޸ģ�ע������֧��ȫ��EasyUI 1.5.x�汾)
+
+8��jquery.insdep-extend.min.js 
+(EasyUI���������ʼ���ļ�)
+
+�������⣺
+���������֧��EasyUI 1.5.0���µ�jQuery EasyUI�汾�����������Ŀ��δ��EasyUI���й����ο��������Կ��ǳ��Ը���������ע������ǰ��ע�ⱸ�
