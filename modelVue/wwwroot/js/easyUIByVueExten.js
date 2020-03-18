@@ -11,21 +11,42 @@ if (!top['euiModelCache_WebLog'])
     });
 //js公用方法
 var comFunc = {
+    changeStrToBack: function (str) {
+        let m = str.match(/^[A-Z]+/);
+        if (!m) return str;
+        if (m[0].length === str.length) return str.toLowerCase(); //直接返回
+
+        let len = m[0].length - 1;
+        if (len < 1) len = 1; //单个连续大写转小写 多个连续时留最后一个大写
+        return m[0].substring(0, len).toLowerCase() + str.substring(len);
+    },
     changeListData: function (dt, typeName) {
-        if ((dt.hasOwnProperty('Total') && dt.hasOwnProperty('PageData'))
-            || dt.hasOwnProperty('total') && dt.hasOwnProperty('pageData')) {
+        if ((dt.hasOwnProperty('Total') && dt.hasOwnProperty('PageData')) ||
+            dt.hasOwnProperty('total') && dt.hasOwnProperty('pageData')) {
             if (typeName === 'datagrid') {
                 if (dt.hasOwnProperty('Total'))
-                    dt = { rows: dt.PageData || dt.Rows, total: dt.Total };
-                else dt = { rows: dt.pageData || dt.rows, total: dt.total };
+                    dt = {
+                        rows: dt.PageData || dt.Rows,
+                        total: dt.Total
+                    };
+                else dt = {
+                    rows: dt.pageData || dt.rows,
+                    total: dt.total
+                };
             } else
                 dt = dt.PageData || dt.pageData || dt.Rows || dt.rows;
-        } else if ((dt.hasOwnProperty('TotalCount') && dt.hasOwnProperty('Items'))
-            || dt.hasOwnProperty('totalCount') && dt.hasOwnProperty('items')) {
+        } else if ((dt.hasOwnProperty('TotalCount') && dt.hasOwnProperty('Items')) ||
+            dt.hasOwnProperty('totalCount') && dt.hasOwnProperty('items')) {
             if (typeName === 'datagrid') {
                 if (dt.hasOwnProperty('TotalCount'))
-                    dt = { rows: dt.Items, total: dt.TotalCount };
-                else dt = { rows: dt.items, total: dt.totalCount };
+                    dt = {
+                        rows: dt.Items,
+                        total: dt.TotalCount
+                    };
+                else dt = {
+                    rows: dt.items,
+                    total: dt.totalCount
+                };
             } else
                 dt = dt.Items || dt.items;
         }
@@ -89,10 +110,18 @@ var comFunc = {
                             return false;
                         }
                         let loading = () => {
-                            try { $(this)[type]('loading'); } catch (e) { ; }
+                            try {
+                                $(this)[type]('loading');
+                            } catch (e) {
+                                ;
+                            }
                         }
                         let loaded = () => {
-                            try { $(this)[type]('loaded'); } catch (e) { ; }
+                            try {
+                                $(this)[type]('loaded');
+                            } catch (e) {
+                                ;
+                            }
                         }
                         let p = comFunc.clone(param);
                         for (let i in p) {
@@ -104,10 +133,17 @@ var comFunc = {
                                 }
                         }
                         $.ajax({
-                            type: op.method, url: op.url, notShowlayer: true, data: p, dataType: "json", contentType: op.contentType, success: function (data) {
+                            type: op.method,
+                            url: op.url,
+                            notShowlayer: true,
+                            data: p,
+                            dataType: "json",
+                            contentType: op.contentType,
+                            success: function (data) {
                                 loaded();
                                 success.apply(this, arguments);
-                            }, error: function () {
+                            },
+                            error: function () {
                                 loaded();
                                 error.apply(this, arguments);
                             },
@@ -127,14 +163,16 @@ var comFunc = {
             return;
         }
         var l = parent.layer || layer;
-        return typeof (l) === 'object' ? (str) => l.msg(str, { icon: 0 }) :
+        return typeof (l) === 'object' ? (str) => l.msg(str, {
+                icon: 0
+            }) :
             (str) => (parent.$ || $).messager.info('温馨提示', str);
     })(),
     getElFunc: (el) => {
         if (!el) el = this;
         return (el instanceof $ ? el : $(el)).data('getHasObjFunc');
     },
-    clone: function (o, lv, changeO) {//changeO 对o 返回非undefined时 克隆直接返回其值
+    clone: function (o, lv, changeO) { //changeO 对o 返回非undefined时 克隆直接返回其值
         try {
             if (typeof (changeO) !== 'function') changeO = undefined;
             else {
@@ -179,8 +217,7 @@ var comFunc = {
         }
     },
     handelError: function (data) {
-        var props = ['Data', 'Success', 'Message'
-            , 'data', 'success', 'message'];
+        var props = ['Data', 'Success', 'Message', 'data', 'success', 'message'];
         var hasError = false;
         if (props.filter(p => data.hasOwnProperty(p)).length === 3) {
             if (data.success === false || data.Success === false) {
@@ -190,8 +227,7 @@ var comFunc = {
             }
         } else if (data['success'] == false || data['Success'] == false) {
             hasError = true;
-        }
-        else {
+        } else {
             hasError = data.hasOwnProperty('errMsg');
             if (hasError) {
                 comFunc.alert(data.errMsg);
@@ -203,7 +239,7 @@ var comFunc = {
     onLoadSuccess: function (data) {
         $('.easyui-tooltip').each((a, b, c) => {
             try {
-                $(b).tooltip('options');//暴力给未绑定tooltip的渲染出来 在加载完成之时
+                $(b).tooltip('options'); //暴力给未绑定tooltip的渲染出来 在加载完成之时
             } catch (e) {
                 var title = $(b).attr('title');
                 if (title)
@@ -211,7 +247,10 @@ var comFunc = {
                         position: 'right',
                         content: '<span style="color:#fff">' + title + '</span>',
                         onShow: function () {
-                            $(b).tooltip('tip').css({ backgroundColor: '#666', borderColor: '#666' });
+                            $(b).tooltip('tip').css({
+                                backgroundColor: '#666',
+                                borderColor: '#666'
+                            });
                         }
                     });
             }
@@ -232,7 +271,8 @@ var comFunc = {
     },
     getHasObjFunc: (obj, func, _methods) => {
         _methods = _methods || {};
-        for (let m in _methods) if (typeof (_methods[m]) !== "function") delete _methods[m];
+        for (let m in _methods)
+            if (typeof (_methods[m]) !== "function") delete _methods[m];
         _methods['getobj'] = _methods['getobj'] || (() => obj);
         let _func = null;
         let myType = '';
@@ -241,9 +281,9 @@ var comFunc = {
             var _newArr = [];
             for (var i = 1; i < arguments.length; i++) _newArr.push(arguments[i]);
             try {
-                if (typeof (a0) === "string" && _methods.hasOwnProperty(a0)) return _methods[a0].apply(_func, _newArr);//如果在methods里面 则调用它
+                if (typeof (a0) === "string" && _methods.hasOwnProperty(a0)) return _methods[a0].apply(_func, _newArr); //如果在methods里面 则调用它
                 else {
-                    if (a0[0] === '$') arguments[0] = arguments[0].substring(1);//方便覆盖原始方法 并且能调用初始方法
+                    if (a0[0] === '$') arguments[0] = arguments[0].substring(1); //方便覆盖原始方法 并且能调用初始方法
                     return func.apply(obj, arguments);
                 }
             } catch (e) {
@@ -257,18 +297,16 @@ var comFunc = {
             myType = _func('$getTypeName');
             let gridTypes = ['combogrid', 'treegrid'];
             if (gridTypes.indexOf(myType) !== -1) {
-                if (myType === 'treegrid') {
-                } else {
+                if (myType === 'treegrid') {} else {
                     var inner_grid = _func('grid');
                     inner_grid && setEls.push(inner_grid);
                 }
             }
-        } catch (e) {
-        }
+        } catch (e) {}
         setEls.forEach(__el => __el.data('getHasObjFunc', _func));
         return _func;
     },
-    nullFunc: () => { },
+    nullFunc: () => {},
     //根据字符串获取一个方法
     getFunc: function (funcStr) {
         var nullFunc = this.nullFunc;
@@ -286,14 +324,14 @@ var comFunc = {
     getModelByWindowAndUrl: function (window, url) {
         var result = null;
         if (typeof (url) !== "string" || !url) return result;
-        top['euiModelCache_WebLog'] = top['euiModelCache_WebLog'] || {};//缓存相同请求 因为url一致
+        top['euiModelCache_WebLog'] = top['euiModelCache_WebLog'] || {}; //缓存相同请求 因为url一致
         let px = '';
         if (this.getModelByWindowAndUrl_IsAddGet) {
             let _url = location.href.replace(location.host + '/', '').replace('http://', '').replace('https://', '');
             if (/^\/?(\w+?)\/?$/.test(url)) {
                 _url = _url.substring(0, _url.indexOf('/'));
                 px = '/' + _url.substring(0, _url.indexOf('/')) + '/get/';
-            } else {//匹配其他规则的
+            } else { //匹配其他规则的
                 let m = url.match(/^\/?(\w+?)\/(\w+?)\/?$/);
                 if (m !== null) {
                     _url = m[1];
@@ -313,8 +351,7 @@ var comFunc = {
                     result = data.filter(el => el !== null);
                     top['euiModelCache_WebLog'][euiModelCache_WebLogKey] = result;
                 },
-                error: function () {
-                }
+                error: function () {}
             });
 
         return comFunc.clone(result);
@@ -340,15 +377,15 @@ var comFunc = {
     getDomId: function (vueCon) {
         if (!(vueCon instanceof Vue)) return;
         if (vueCon.$attrs.id) return vueCon.$attrs.id;
-        var num = 3, prefix = vueCon.$options._componentTag + '_';
+        var num = 3,
+            prefix = vueCon.$options._componentTag + '_';
         var getRandomStr = () => {
             comFunc.getRandomStr(num);
         };
         if (typeof (prefix) === "string" && prefix) {
             var id = comFunc.getRandomStr(num, (str) => prefix + str);
             return id;
-        }
-        else return getRandomStr();
+        } else return getRandomStr();
     },
     //创建loadControls方法的方法
     get_loadControls: function (getControlFunc, _controls) {
@@ -378,19 +415,26 @@ var comFunc = {
                             el[0].classList.forEach(_el => {
                                 var type = _el.replace('easyui-', '');
                                 if (type !== _el && easyuis.getControl(type)) {
-                                    controls[con] = new euiControl({ el: el, option: option, typeName: type });//设置选项
+                                    controls[con] = new euiControl({
+                                        el: el,
+                                        option: option,
+                                        typeName: type
+                                    }); //设置选项
                                 }
                             });
-                    }
-                    else {
-                        var curCon = easyuis.getControl(cons[1]);//拿到easyui对应控件
+                    } else {
+                        var curCon = easyuis.getControl(cons[1]); //拿到easyui对应控件
                         if (curCon && curCon.hasOwnProperty('enName')) {
                             var conArrs = option;
                             for (var _con in conArrs) {
                                 option = conArrs[_con];
                                 //拿得到控件 设置选项
-                                curCon = getControl(_con);//拿到页面元素
-                                controls[con] = new euiControl({ el: curCon, option: option, typeName: cons[1] });//设置选项
+                                curCon = getControl(_con); //拿到页面元素
+                                controls[con] = new euiControl({
+                                    el: curCon,
+                                    option: option,
+                                    typeName: cons[1]
+                                }); //设置选项
                             }
                         }
                     }
@@ -413,12 +457,18 @@ var comFunc = {
             },
         };
         var getOneColumn = (col) => {
-            var result = { field: col.controlName || '', title: col.lableName, $cdata: col };
+            var result = {
+                field: col.controlName || '',
+                title: col.lableName,
+                $cdata: col
+            };
             if (result.field)
-                result.field = result.field[0].toLowerCase() + result.field.substring(1);
+                result.field = comFunc.changeStrToBack(result.field); //小驼峰命名
             var setOption = (pName, val) => result[pName] = option[pName] || val;
             [
-                ['width', 150], ['align', 'center'], ['hidden', !col.isShow],
+                ['width', 150],
+                ['align', 'center'],
+                ['hidden', !col.isShow],
                 ['formatter', typeFormatter[col.typeName.replace('?', '')]]
             ].forEach(el => el.length >= 2 && setOption(el[0], el[1]));
             for (let on in option) setOption(on, undefined);
@@ -444,7 +494,7 @@ var comFunc = {
                 } else {
                     result.formatter = function (value, row, index) {
                         try {
-                            return row[this.field + '$Text'];//配合endCellEdit 使页面能正常显示下拉框的text
+                            return row[this.field + '$Text']; //配合endCellEdit 使页面能正常显示下拉框的text
                         } catch (e) {
                             return value;
                         }
@@ -465,7 +515,10 @@ var comFunc = {
             return result;
         };
         var createEditor = (col) => {
-            let _Editor = { type: 'auto', options: col };
+            let _Editor = {
+                type: 'auto',
+                options: col
+            };
             col.notlable = true;
             return _Editor;
         };
@@ -474,21 +527,27 @@ var comFunc = {
         cols = cols.filter(el => el);
         if (sortList && Array.isArray(sortList) && sortList.length > 0) {
             sortList &&
-                sortList.reverse().forEach(el => {//使顺序为传递过来的顺序
+                sortList.reverse().forEach(el => { //使顺序为传递过来的顺序
                     var findEl = cols.filter(_el => _el.field === el || _el.title === el);
-                    if (findEl.length === 0) findEl = [{ hidden: true, title: el, field: el, width: 150 }];
+                    if (findEl.length === 0) findEl = [{
+                        hidden: true,
+                        title: el,
+                        field: el,
+                        width: 150
+                    }];
                     if (findEl.length === 1) {
                         var idx = cols.indexOf(findEl[0]);
-                        cols.splice(idx, 1);//删除该元素
+                        cols.splice(idx, 1); //删除该元素
                         cols = [findEl[0]].concat(cols);
                     }
                 });
         }
         return cols;
     },
-    loadJS: (() => {//必须与easyUIByVueExten.js在同一目录下
+    loadJS: (() => { //必须与easyUIByVueExten.js在同一目录下
         var notNeedLoadJSArr = [];
         var PATH = __CreateJSPath("easyUIByVueExten.js");
+
         function __CreateJSPath(js) {
             var scripts = document.getElementsByTagName("script");
             var path = "";
@@ -516,18 +575,19 @@ var comFunc = {
         }
         return (jsName, isAbbreviation) => {
             if (typeof (isAbbreviation) !== 'boolean') isAbbreviation = true;
-            var url = (isAbbreviation ? PATH : '')//如果是简写则与easyUIByVueExten.js在同一目录下
-                + jsName;
-            if (notNeedLoadJSArr.indexOf(url) !== -1) return;//已经加载的
-            if (/.+?\.js$/.test(jsName))//满足正则则加载
+            var url = (isAbbreviation ? PATH : '') //如果是简写则与easyUIByVueExten.js在同一目录下
+                +
+                jsName;
+            if (notNeedLoadJSArr.indexOf(url) !== -1) return; //已经加载的
+            if (/.+?\.js$/.test(jsName)) //满足正则则加载
                 document.write('<script src="' + url + '" type="text/javascript"></sc' + 'ript>');
             return PATH;
         };
     })(),
-    lytOpen: function (title, url, closeCall, fun, w, h) {//para关闭叉叉触发的事件
+    lytOpen: function (title, url, closeCall, fun, w, h) { //para关闭叉叉触发的事件
         if (!top.layer && !layer) return;
-        var width = document.body.offsetWidth - 100;//js document.body.offsetWidth网页可见区域的宽
-        var height = document.body.offsetHeight - 50;//js document.body.offsetHeight网页可见区域的高
+        var width = document.body.offsetWidth - 100; //js document.body.offsetWidth网页可见区域的宽
+        var height = document.body.offsetHeight - 50; //js document.body.offsetHeight网页可见区域的高
         if (typeof (w) != 'undefined') {
             width = w;
         }
@@ -537,7 +597,7 @@ var comFunc = {
         var _closeCall = (action, win) => {
             typeof (closeCall) === 'function' && closeCall(action, win);
         };
-        var successCall = () => { };
+        var successCall = () => {};
         var options = {
             shade: [0.5, '#000'],
             shadeClose: false,
@@ -550,17 +610,16 @@ var comFunc = {
             success: function (layero, index) {
                 var body = layer.getChildFrame('body', index);
                 var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
-                iframeWin.$isLytOpen = true;//标识页面是layer打开的
+                iframeWin.$isLytOpen = true; //标识页面是layer打开的
                 iframeWin.lytClose = (action) => {
                     layer.close(index);
-                    _closeCall(action, iframeWin);//关闭页面之前的回调
+                    _closeCall(action, iframeWin); //关闭页面之前的回调
                 };
-                typeof (successCall) === "function" && successCall.apply(this, [layero, index, iframeWin]);//成功之后的回调
+                typeof (successCall) === "function" && successCall.apply(this, [layero, index, iframeWin]); //成功之后的回调
             },
-            cancel: function () {
-            }
+            cancel: function () {}
         };
-        if (typeof (arguments[0]) === 'object') {//可以覆盖初始的属性
+        if (typeof (arguments[0]) === 'object') { //可以覆盖初始的属性
             const obj = comFunc.clone(arguments[0]);
             delete obj['success'];
             _closeCall = typeof (obj['closeCall']) === 'function' ? obj['closeCall'] : _closeCall;
@@ -629,7 +688,7 @@ var euiControl = function (_obj) {
         if (onEvents) {
             //不规则的事件名
             var noRuleEventNames = ['success'];
-            for (let en in onEvents) {//给on对象绑定到option上
+            for (let en in onEvents) { //给on对象绑定到option上
                 let event = onEvents[en];
                 if (typeof (event) === 'function') {
                     if (noRuleEventNames.indexOf(en) === -1) {
@@ -643,7 +702,7 @@ var euiControl = function (_obj) {
         }
         let functions = get_objVal('functions', 'object', null);
         if (functions) {
-            for (let en in functions) {//给functions对象绑定到option上
+            for (let en in functions) { //给functions对象绑定到option上
                 let func = functions[en];
                 if (typeof (func) === 'function') {
                     eCon.option[en] = func;
@@ -662,19 +721,19 @@ var euiControl = function (_obj) {
         if (Columns) {
             eCon.option['$Columns'] = Columns;
         }
-    })();//处理option
+    })(); //处理option
     (() => {
-        let columnsTypes = ['datagrid', 'treegrid', 'combogrid', 'combogrid', 'combotreegrid'];//包含列的控件类型集合
+        let columnsTypes = ['datagrid', 'treegrid', 'combogrid', 'combogrid', 'combotreegrid']; //包含列的控件类型集合
         if (columnsTypes.indexOf(eCon.typeName) === -1) return;
         //当处于这些控件类型时，可以智能设置列
-        let columns = [];//不冻结列
-        let frozenColumns = [];//冻结列
+        let columns = []; //不冻结列
+        let frozenColumns = []; //冻结列
         let $Columns = typeof (eCon.option.$Columns) === 'object' && Array.isArray(eCon.option.$Columns) ? eCon.option.$Columns : null;
         if ($Columns) {
             let getIsFrozen = (col) => col && col['isFrozen'] === true;
             $Columns.forEach(el => {
                 let curArr = [];
-                if (Array.isArray(el)) {//只支持一层嵌套
+                if (Array.isArray(el)) { //只支持一层嵌套
                     curArr = curArr.concat(el);
                 } else if (typeof (el) === 'object') {
                     curArr.push(el);
@@ -689,7 +748,9 @@ var euiControl = function (_obj) {
                 columns = columns.concat(curArr.filter(_el => !getIsFrozen(_el)));
                 frozenColumns = frozenColumns.concat(curArr.filter(_el => getIsFrozen(_el)));
             });
-            (eCon.option.frozenColumns || [[]])[0].forEach(el => {
+            (eCon.option.frozenColumns || [
+                []
+            ])[0].forEach(el => {
                 if (typeof (el) === 'object')
                     frozenColumns.push(el);
             });
@@ -701,19 +762,19 @@ var euiControl = function (_obj) {
             let cols = columns.concat(frozenColumns).filter(el => el.hidden !== true);
             for (let en in eCon.option.$EditOptions) {
                 let _col = cols.find(el => el.title === en || el.field === en);
-                if (_col && typeof (_col) === 'object'
-                    && typeof (_col['editor']) === 'object' && typeof (_col['editor']['options']) === 'object') {
+                if (_col && typeof (_col) === 'object' &&
+                    typeof (_col['editor']) === 'object' && typeof (_col['editor']['options']) === 'object') {
                     let _colEditOptions = _col['editor']['options'];
                     if (_col['editor']['type'] === 'auto') {
                         _colEditOptions = _col['editor']['options']['initOption'] = {};
                     }
-                    for (let _o in eCon.option.$EditOptions[en]) {//使用直接覆盖属性模式 给编辑器直接绑定属性方法等
+                    for (let _o in eCon.option.$EditOptions[en]) { //使用直接覆盖属性模式 给编辑器直接绑定属性方法等
                         _colEditOptions[_o] = eCon.option.$EditOptions[en][_o];
                     }
                 }
             }
         }
-    })();//处理列对象
+    })(); //处理列对象
     eCon.setOption();
     eCon.option['methods'] = typeof (eCon.option['methods']) === "object" ? eCon.option['methods'] : {};
     if (!eCon.option['methods'].hasOwnProperty('$getTypeName')) eCon.option['methods']['$getTypeName'] = () => eCon.typeName;
@@ -740,8 +801,7 @@ var euiControl = function (_obj) {
                 var result = false;
                 if (typeof (callFunc) === "function") {
                     result = callFunc(rows[i], i);
-                }
-                else result = eCon.el.datagrid('validateRow', i);
+                } else result = eCon.el.datagrid('validateRow', i);
                 if (!result) {
                     return false;
                 }
@@ -792,7 +852,7 @@ var easyuis = {
                 };
             })(); //注入成功的回调
             if (!comFunc.getElFunc(el)) {
-                let innerTypeNames = ['datagrid', 'tree'];//当控件是这些内部控件的时候 不进入嵌套load控制
+                let innerTypeNames = ['datagrid', 'tree']; //当控件是这些内部控件的时候 不进入嵌套load控制
                 for (let i = 0; i < innerTypeNames.length; i++) {
                     let dg = $(el).data(innerTypeNames[i]);
                     if (dg && dg.options.$el[0] !== el) {
@@ -829,10 +889,18 @@ var easyuis = {
                             return false;
                         }
                         let loading = () => {
-                            try { $(this)[typeName]('loading'); } catch (e) { ; }
+                            try {
+                                $(this)[typeName]('loading');
+                            } catch (e) {
+                                ;
+                            }
                         }
                         let loaded = () => {
-                            try { $(this)[typeName]('loaded'); } catch (e) { ; }
+                            try {
+                                $(this)[typeName]('loaded');
+                            } catch (e) {
+                                ;
+                            }
                         }
                         let p = comFunc.clone(param);
                         for (let i in p) {
@@ -844,10 +912,17 @@ var easyuis = {
                                 }
                         }
                         $.ajax({
-                            type: op.method, url: op.url, notShowlayer: true, data: p, dataType: "json", contentType: op.contentType, success: function (data) {
+                            type: op.method,
+                            url: op.url,
+                            notShowlayer: true,
+                            data: p,
+                            dataType: "json",
+                            contentType: op.contentType,
+                            success: function (data) {
                                 loaded();
                                 success.apply(this, arguments);
-                            }, error: function () {
+                            },
+                            error: function () {
                                 loaded();
                                 error.apply(this, arguments);
                             },
@@ -863,8 +938,7 @@ var easyuis = {
         onLoadSuccess: function (data) {
             if (!comFunc.onLoadSuccess.apply(this, arguments)) return;
         },
-        onShowPanel: function () {
-        }
+        onShowPanel: function () {}
     },
     controls: {
         Base: {
@@ -893,20 +967,24 @@ var easyuis = {
                 options: {
                     onLoadSuccess: function (data) {
                         setTimeout(() => {
-                            var el_func = comFunc.getElFunc(this);
-                            var op = el_func ? el_func('options') : $(this).data('combobox').options;
-                            if (op.hasAllSelect) {
-                                var _datdItem = {};
-                                _datdItem[op.valueField] = '';
-                                _datdItem[op.textField] = '全部';
-                                data = [_datdItem].concat(data);
-                                delete op.hasAllSelect;
-                                if (el_func)
-                                    el_func({ data: data });
-                                else $(this).combobox({ data: data });
-                                return;
-                            }
-                        },
+                                var el_func = comFunc.getElFunc(this);
+                                var op = el_func ? el_func('options') : $(this).data('combobox').options;
+                                if (op.hasAllSelect) {
+                                    var _datdItem = {};
+                                    _datdItem[op.valueField] = '';
+                                    _datdItem[op.textField] = '全部';
+                                    data = [_datdItem].concat(data);
+                                    delete op.hasAllSelect;
+                                    if (el_func)
+                                        el_func({
+                                            data: data
+                                        });
+                                    else $(this).combobox({
+                                        data: data
+                                    });
+                                    return;
+                                }
+                            },
                             1);
                         if (!comFunc.onLoadSuccess.apply(this, arguments)) return;
                     },
@@ -1021,10 +1099,9 @@ var easyuis = {
                         var options = $(this).datagrid('options');
                         var loaderAddRow = options['loaderAddRow'] || false;
                         if (loaderAddRow)
-                            $(this).datagrid('appendRow',
-                                {
-                                    lastDate: new Date()
-                                });
+                            $(this).datagrid('appendRow', {
+                                lastDate: new Date()
+                            });
                         var hasUrl = Boolean(options.hasOwnProperty('url') && options.url);
                         return hasUrl;
                     },
@@ -1042,7 +1119,10 @@ var easyuis = {
                     },
                     onClickCell: function (index, field, value) {
                         $(this).datagrid('endCellEdit');
-                        $(this).datagrid('editCell', { index: index, field: field });
+                        $(this).datagrid('editCell', {
+                            index: index,
+                            field: field
+                        });
                     }
                 },
                 beforeCreate: function (el, options) {
@@ -1050,8 +1130,7 @@ var easyuis = {
                         if (options.tools && $(options.tools).length > 0) {
                             el.attr('toolbar', options.tools);
                         }
-                    } catch (e) {
-                    }
+                    } catch (e) {}
                 }
             }),
             datalist: new euiControlType({
@@ -1146,7 +1225,9 @@ var easyuis = {
         if (option['_url']) {
             let __url = option['_url'];
             delete option['_url'];
-            $(() => el[controlName]({ url: __url }));
+            $(() => el[controlName]({
+                url: __url
+            }));
         }
         return option;
     },
@@ -1158,18 +1239,18 @@ var easyuis = {
             return el;
         } else
             el.length > 0 &&
-                el[0].classList.forEach(_el => {
-                    var type = _el.replace('easyui-', '');
-                    if (type !== _el) {
-                        el[type](easyuis.getOption(el, option, type));
-                        return el;
-                    }
-                });
+            el[0].classList.forEach(_el => {
+                var type = _el.replace('easyui-', '');
+                if (type !== _el) {
+                    el[type](easyuis.getOption(el, option, type));
+                    return el;
+                }
+            });
         return null;
     },
     getValue: function (el, typeName) {
         let val = '';
-        let isMultiple = el.attr('multiple') === 'multiple';//多选的处理 多选的标签是通过自定义方式创建控件才有的
+        let isMultiple = el.attr('multiple') === 'multiple'; //多选的处理 多选的标签是通过自定义方式创建控件才有的
         try {
             try {
                 val = $(el)[typeName](isMultiple ? 'getValues' : 'getValue');
@@ -1197,7 +1278,7 @@ var easyuis = {
 };
 //自定义验证
 $.extend($.fn.validatebox.defaults.rules, {
-    reg: {//by sxr 正则验证支持存放正则表达式验证
+    reg: { //by sxr 正则验证支持存放正则表达式验证
         //使用规则  validType="reg['^[0-9a-zA-Z.-]+$']" []里第一个参数是正则表达式 第二个是错误消息
         validator: function (value, param) {
             var myreg = new RegExp(param[0]);
@@ -1240,7 +1321,11 @@ $.extend($.fn.datagrid.defaults.editors, {
                 }
             }
             easyuis.setOption(input, op);
-            let e_func = new euiControl({ el: input, option: op, typeName: op.$typeName });
+            let e_func = new euiControl({
+                el: input,
+                option: op,
+                typeName: op.$typeName
+            });
             this.getValue = (target) => {
                 try {
                     if (op.multiple) {
@@ -1273,13 +1358,11 @@ $.extend($.fn.datagrid.defaults.editors, {
                         window.__editSetVal =
                             setTimeout(() => {
                                 try {
-                                    easyuis.setValue(target, 'combobox', val);//可能会不支持多选
+                                    easyuis.setValue(target, 'combobox', val); //可能会不支持多选
                                     //e_func(fn, val);
-                                } catch (e) {
-                                }
+                                } catch (e) {}
                             }, 1);
-                    }
-                    else e_func(fn, val);
+                    } else e_func(fn, val);
                     if (firstSetValCall) {
                         firstSetValCall();
                         firstSetValCall = undefined;
@@ -1290,17 +1373,15 @@ $.extend($.fn.datagrid.defaults.editors, {
                 //fun();
                 try {
                     fun();
-                } catch (e) {
-                }
+                } catch (e) {}
             };
             this.destroy = (target) => {
                 try {
                     if (isCombo) {
-                        this.editorData
-                            = {
-                                text: input['combo']('getText'),
-                                val: this.getValue()
-                            };
+                        this.editorData = {
+                            text: input['combo']('getText'),
+                            val: this.getValue()
+                        };
                     }
                     input[op.$typeName]('destroy');
                 } catch (e) {
@@ -1355,14 +1436,16 @@ $.extend($.fn.combotree.methods, {
     Date.prototype.AddDay = function (days) {
         days = typeof (days) === 'number' ? days : 0;
         var date1 = this,
-            time1 = date1.getFullYear() + "-" + (date1.getMonth() + 1) + "-" + date1.getDate();//time1表示当前时间
+            time1 = date1.getFullYear() + "-" + (date1.getMonth() + 1) + "-" + date1.getDate(); //time1表示当前时间
         var date2 = new Date(date1);
         date2.setDate(date1.getDate() + days);
         var time2 = date2.getFullYear() + "-" + (date2.getMonth() + 1) + "-" + date2.getDate();
         return time2;
     };
     Array.prototype.removeAt = function (Index) {
-        if (isNaN(Index) || Index > this.length) { return false; }
+        if (isNaN(Index) || Index > this.length) {
+            return false;
+        }
         for (var i = 0, n = 0; i < this.length; i++) {
             if (this[i] != this[Index]) {
                 this[n++] = this[i]
@@ -1380,8 +1463,8 @@ $.extend($.fn.combotree.methods, {
             */
         this.length -= 1
     }
-})();//一些类型的方法扩展
-(() => {//装载layer 使页面必定有layer
+})(); //一些类型的方法扩展
+(() => { //装载layer 使页面必定有layer
     return;
     document.write('<link href="/Content/layer/theme/default/layer.css" rel="stylesheet" type="text/css" />');
     comFunc.loadJS('/Content/layer/layer.js', false);
@@ -1389,22 +1472,25 @@ $.extend($.fn.combotree.methods, {
 
 /***************************** vue 的扩展 ********************************************/
 
-if (window['Vue'] === undefined) window['Vue'] = () => { };
+if (window['Vue'] === undefined) window['Vue'] = () => {};
 if (window['Vue']['component'] === undefined) window['Vue']['component'] = () => {
-    console.log('请先给页面引入Vue.js'); window['Vue']['component'] = () => { };
+    console.log('请先给页面引入Vue.js');
+    window['Vue']['component'] = () => {};
 };
 let components = {
-    gridsearchdiv: {//对该标签内的DOM进行监听 每当dom改变 就获取初始化时得到的一级元素id集合 遍历取这个集合的 值 放入load中
+    gridsearchdiv: { //对该标签内的DOM进行监听 每当dom改变 就获取初始化时得到的一级元素id集合 遍历取这个集合的 值 放入load中
         template: '<div v-on:DOMSubtreeModified="DOMSubtreeModified"><slot></slot></div>',
         methods: {
             DOMSubtreeModified: function (e) {
                 //当dom元素发生改变时触发
                 var dgTableID = e.currentTarget.getAttribute('dgTableID');
-                if (!dgTableID) return;//如果没有关联的TableID就不执行
+                if (!dgTableID) return; //如果没有关联的TableID就不执行
                 var _SearchForm = $(e.currentTarget).data('SearchForm');
                 var loadSearchForm = function (el) {
                     var obj = {
-                        ids: [], names: [], valObj: {}
+                        ids: [],
+                        names: [],
+                        valObj: {}
                     };
                     $(el.innerHTML).each(function () {
                         obj.ids.push(this.id);
@@ -1413,7 +1499,7 @@ let components = {
                     obj.ids = obj.ids.filter(el => typeof (el) === "string" && el);
                     obj.names = obj.names.filter(el => typeof (el) === "string" && el);
                     $(el).data('SearchForm', obj);
-                };//初始化SearchForm
+                }; //初始化SearchForm
                 var currentTarget = e.currentTarget;
                 var __SearchFunc = () => {
                     var hasVal = false;
@@ -1435,13 +1521,13 @@ let components = {
                 };
                 if (!_SearchForm) {
                     loadSearchForm(e.currentTarget);
-                    $(e.currentTarget).data('loadSearchForm', loadSearchForm);//如果后续有动态绑定 可以通过这个方式拿到loadSearchForm方法
+                    $(e.currentTarget).data('loadSearchForm', loadSearchForm); //如果后续有动态绑定 可以通过这个方式拿到loadSearchForm方法
                     _SearchForm = $(e.currentTarget).data('SearchForm');
                     return;
                 } else {
                     if (typeof (__SearchFunc) !== "function") return;
-                    $(e.currentTarget).data('SearchFuncID') + '' && clearTimeout($(e.currentTarget).data('SearchFuncID'));//清除前一次绑定的值
-                    $(e.currentTarget).data('SearchFuncID', setTimeout(__SearchFunc, 500));//500毫秒后执行查询方法
+                    $(e.currentTarget).data('SearchFuncID') + '' && clearTimeout($(e.currentTarget).data('SearchFuncID')); //清除前一次绑定的值
+                    $(e.currentTarget).data('SearchFuncID', setTimeout(__SearchFunc, 500)); //500毫秒后执行查询方法
                 }
             }
         }
@@ -1452,7 +1538,7 @@ let components = {
     //自动的控件
     e_autoform_control: {
         props: {
-            notautoallownulltoall: String,//允许空控件自动变成全部选项
+            notautoallownulltoall: String, //允许空控件自动变成全部选项
             cdata: Object,
         },
         data: function () {
@@ -1464,9 +1550,9 @@ let components = {
             delete this.cdata['vue'];
             var cdataJson = JSON.stringify(this.cdata);
             this.cdata['vue'] = this;
-            top['euiControlTypeCache'] = top['euiControlTypeCache'] || {};//缓存控件 根据cdataJson
-            if (top['euiControlTypeCache'][cdataJson] && false)//如果缓存里面有 则不走运算分支 直接得到改变过的cdata
-            {//缓存的data有问题 暂时注释 todo 时间2019年4月24日16:12:59
+            top['euiControlTypeCache'] = top['euiControlTypeCache'] || {}; //缓存控件 根据cdataJson
+            if (top['euiControlTypeCache'][cdataJson] && false) //如果缓存里面有 则不走运算分支 直接得到改变过的cdata
+            { //缓存的data有问题 暂时注释 todo 时间2019年4月24日16:12:59
                 for (var key in top['euiControlTypeCache'][cdataJson]) {
                     this.cdata[key] = top['euiControlTypeCache'][cdataJson][key];
                 }
@@ -1478,7 +1564,7 @@ let components = {
                 //构造控件的基础选项
                 var cdata = this.cdata;
                 if (cdata['controlName'] && typeof (cdata['controlName']) === "string" && cdata['controlName'].length >= 1)
-                    cdata['controlName'] = cdata['controlName'][0].toLowerCase() + cdata['controlName'].substring(1);//首字母小写
+                    cdata['controlName'] = comFunc.changeStrToBack(cdata['controlName']); //小驼峰命名
                 cdata['vue'] = this;
                 cdata['data-options'] = '"disabled":false';
                 if (!cdata.allowNull) cdata['data-options'] += ',"required":true';
@@ -1497,8 +1583,7 @@ let components = {
                                 delete optionObj['url'];
                             }
                             cdata.option = JSON.stringify(optionObj);
-                        } catch (e) {
-                        }
+                        } catch (e) {}
                     }
                     return "," + cdata.option.replace(/^(\s)?{(\s)?/, '').replace(/(\s)?}(\s)?$/, '');
                 };
@@ -1510,12 +1595,12 @@ let components = {
                             cdata.classStr = cdata.classStr.replace(/ form-box/gi, '');
                             break;
                         case "枚举下拉框":
-                            cdata.classStr += ' easyui-combobox';
+                            cdata.classStr += ' auto easyui-combobox';
                             cdata['data-options'] += `,"valueField": "id","textField": "text"`;
                             cdata['data-options'] += getOption();
                             break;
                         case "多行文本框":
-                            cdata.classStr += ' easyui-textbox';
+                            cdata.classStr += ' auto easyui-textbox';
                             cdata['data-options'] += ',"multiline":true';
                             break;
                         default:
@@ -1528,11 +1613,11 @@ let components = {
                             break;
                     }
                 } else if (cdata.typeName === "String") {
-                    cdata.classStr += ' easyui-textbox';
+                    cdata.classStr += ' auto easyui-textbox';
                 } else if (["DateTime", "DateTime?"].indexOf(cdata.typeName) !== -1) {
-                    cdata.classStr += ' easyui-datetimebox';
+                    cdata.classStr += ' auto easyui-datetimebox';
                 } else if (["Boolean", "Boolean?"].indexOf(cdata.typeName) !== -1) {
-                    cdata.classStr += ' easyui-combobox';
+                    cdata.classStr += ' auto easyui-combobox';
                     cdata['data-options'] += `,"valueField": "id","textField": "text"
                         ,"data":[{"id":"true","text":"是"},{"id":"false","text":"否"}]`;
                 }
@@ -1545,9 +1630,9 @@ let components = {
                     if (mc.length > 0)
                         cdata.easyuiType = mc[1];
                 }
-                if (!cdata.hasOwnProperty('notlable')) cdata.notlable = false;//默认值
+                if (!cdata.hasOwnProperty('notlable')) cdata.notlable = false; //默认值
                 //reg['^[0-9a-zA-Z.-]+$']
-            })();//改变选项
+            })(); //改变选项
             top['euiControlTypeCache'][cdataJson] = this.cdata;
         },
         template: `
@@ -1565,8 +1650,10 @@ let components = {
     e_autoform: {
         liWidth: 280,
         rowShowCount: 2,
-        rowWidth: function () { return (components.e_autoform.liWidth + 15) * components.e_autoform.rowShowCount; },
-        classArr: ['', '', 'bigli'],//一行显示多个时对应的li的class 请忽视
+        rowWidth: function () {
+            return (components.e_autoform.liWidth + 15) * components.e_autoform.rowShowCount;
+        },
+        classArr: ['', '', 'bigli'], //一行显示多个时对应的li的class 请忽视
         beforeCreate: function () {
             //准备工作
             let i = 'e_autoform_control';
@@ -1575,18 +1662,20 @@ let components = {
             }
         },
         props: {
-            notautoallownulltoall: String,//允许空控件自动变成全部选项
+            notautoallownulltoall: String, //允许空控件自动变成全部选项
             formurl: String,
             formfieldsort: Array,
             formfieldsortstr: String,
-            showlist: String,//eg:[['模具分类','模具名称'],['模具编号','类型'],['使用状态','厂商 ','良品率']] 当页面每一行要显示的li个数不一样时可以使用它而放弃formfieldsort
+            showlist: String, //eg:[['模具分类','模具名称'],['模具编号','类型'],['使用状态','厂商 ','良品率']] 当页面每一行要显示的li个数不一样时可以使用它而放弃formfieldsort
         },
         data: function () {
             var _formfieldsort = [];
             try {
                 if (!this.formfieldsort && this.formfieldsortstr) _formfieldsort = eval(this.formfieldsortstr);
                 else _formfieldsort = this.formfieldsort;
-            } catch (e) { ; }
+            } catch (e) {
+                ;
+            }
             var url = this.formurl;
             if (!this.$attrs.rowshowcount) this.$attrs.rowshowcount = '';
             let controlsArr = [];
@@ -1594,20 +1683,20 @@ let components = {
                 autoId: comFunc.getDomId(this),
                 fields: [],
                 hideFields: [],
-                rowShowCount: this.$attrs.rowshowcount + '',//设置一列显示几个
+                rowShowCount: this.$attrs.rowshowcount + '', //设置一列显示几个
                 classArr: components.e_autoform.classArr,
                 controlsArr: controlsArr,
                 rowSpacingStyle: 'height:5px;'
             };
             result.rowShowCount = parseInt(result.rowShowCount || components.e_autoform.rowShowCount);
             if (typeof (url) !== "string" || !url) return result;
-            result.fields = comFunc.getModelByWindowAndUrl(window, url);//获取当前页面的模型
+            result.fields = comFunc.getModelByWindowAndUrl(window, url); //获取当前页面的模型
             _formfieldsort &&
-                _formfieldsort.reverse().forEach(el => {//使顺序为传递过来的顺序
+                _formfieldsort.reverse().forEach(el => { //使顺序为传递过来的顺序
                     var findEl = result.fields.filter(_el => _el.lableName === el);
                     if (findEl.length === 1) {
                         var idx = result.fields.indexOf(findEl[0]);
-                        result.fields.splice(idx, 1);//删除该元素
+                        result.fields.splice(idx, 1); //删除该元素
                         result.fields = [findEl[0]].concat(result.fields);
                     }
                 });
@@ -1636,21 +1725,22 @@ let components = {
                         controlsArr.push(arr);
                 }
                 if (!hasField) throw '未匹配到可用内插值';
-                result.hideFields = result.fields.filter(el => showFields.indexOf(el) === -1);//隐藏的控件组
+                result.hideFields = result.fields.filter(el => showFields.indexOf(el) === -1); //隐藏的控件组
                 result.hideFields.forEach(el => el.isShow = false);
-                result.fields = showFields;//显示的控件组
+                result.fields = showFields; //显示的控件组
                 result.ulClassStr = '';
                 this.$slots.default[0].text = '';
             } catch (e) {
-                result.hideFields = result.fields.filter(el => !el.isShow);//隐藏的控件组
-                result.fields = result.fields.filter(el => el.isShow);//显示的控件组
+                result.hideFields = result.fields.filter(el => !el.isShow); //隐藏的控件组
+                result.fields = result.fields.filter(el => el.isShow); //显示的控件组
                 let showCount = result.fields.length;
                 let rowCount = Math.ceil(showCount / result.rowShowCount);
                 for (let n = 0; n < rowCount; n++) {
                     let arr = [];
                     for (let m = 0; m < result.rowShowCount
                         //在显示数量范围内
-                        && m + n * result.rowShowCount < showCount; m++) {
+                        &&
+                        m + n * result.rowShowCount < showCount; m++) {
                         arr.push(result.fields[m + n * result.rowShowCount]);
                     }
                     controlsArr.push(arr);
@@ -1683,7 +1773,7 @@ let components = {
                     </div>`,
         created: function () {
             this.$nextTick(function () {
-                let needData = {//用非vue的时候 得把this转换成别的东西
+                let needData = { //用非vue的时候 得把this转换成别的东西
                     $el: this.$el,
                     hasDefaultClass: Boolean(this.ulClassStr),
                     fields: this.fields,
@@ -1691,17 +1781,23 @@ let components = {
                     autoId: this.autoId,
                 };
                 let hasDefaultClass = needData.hasDefaultClass;
-                let result = { fields: needData.fields, hideFields: needData.hideFields };
+                let result = {
+                    fields: needData.fields,
+                    hideFields: needData.hideFields
+                };
                 let getControl, loadControls;
                 let curId = needData.autoId;
                 let _controls = {
-                    cns: [], ens: [], els: [], eui_funcs: []
+                    cns: [],
+                    ens: [],
+                    els: [],
+                    eui_funcs: []
                 };
                 let _ENControls = {};
                 let _CNControls = {};
                 //表单控件初始化
                 $(() => {
-                    needData.fields.concat(needData.hideFields).forEach(el => {//表单控件初始化
+                    needData.fields.concat(needData.hideFields).forEach(el => { //表单控件初始化
                         var _control = $('#' + curId + ' #' + el.controlName);
                         var func = undefined;
                         _controls.cns.push(el.lableName);
@@ -1709,7 +1805,11 @@ let components = {
                         _controls.els.push(_control);
                         if (_control.length > 0 && _control[0].id !== curId && el.easyuiType) {
                             try {
-                                func = new euiControl({ el: _control, option: {}, typeName: el.easyuiType });
+                                func = new euiControl({
+                                    el: _control,
+                                    option: {},
+                                    typeName: el.easyuiType
+                                });
                                 el.ControlFunc = func;
                                 _ENControls[el.controlName] =
                                     _CNControls[el.lableName] = func;
@@ -1734,14 +1834,14 @@ let components = {
                         idx = _controls.cns.indexOf(name);
                     return idx;
                 };
-                $(needData.$el).data('getControl', getControl = function (name, isShow) {//根据控件名或字段名获取对应元素
+                $(needData.$el).data('getControl', getControl = function (name, isShow) { //根据控件名或字段名获取对应元素
                     if (typeof (isShow) !== "boolean") isShow = true;
                     var idx = getIdxByName(name);
                     if (idx !== -1) {
                         return _controls.els[idx];
                     }
                 });
-                $(needData.$el).data('getControlFunc', function (name, isShow) {//根据控件名或字段名获取对应easyui方法
+                $(needData.$el).data('getControlFunc', function (name, isShow) { //根据控件名或字段名获取对应easyui方法
                     if (typeof (isShow) !== "boolean") isShow = true;
                     var idx = getIdxByName(name);
                     if (idx !== -1) {
@@ -1758,7 +1858,7 @@ let components = {
                 loadControls = comFunc.get_loadControls(getControl, $(needData.$el).data('getControls')());
                 $(needData.$el).data('loadControls', loadControls);
 
-                if (!hasDefaultClass) {//没有默认样式时
+                if (!hasDefaultClass) { //没有默认样式时
                     //var liH = 30;
                     //$(needData.$el).find('ul').css({ 'height': '20px' });
                     //$(needData.$el).find('li').css({
@@ -1771,9 +1871,9 @@ let components = {
                 }
                 //辅助翻译自动生成的控件变成与Vue无关的代码
                 {
-                    let fields = [];//克隆处理过的所有控件
-                    let oNameArr = ['data-options', 'controlType', 'classStr', 'vue', 'regExp'];//不需要的属性
-                    needData.fields.concat(needData.hideFields).forEach(_el => {//把option暴露在外层直接 用于初始化控件
+                    let fields = []; //克隆处理过的所有控件
+                    let oNameArr = ['data-options', 'controlType', 'classStr', 'vue', 'regExp']; //不需要的属性
+                    needData.fields.concat(needData.hideFields).forEach(_el => { //把option暴露在外层直接 用于初始化控件
                         let el = comFunc.clone(_el, undefined, (o) => {
                             if (o instanceof Vue) return null;
                         });
@@ -1782,8 +1882,10 @@ let components = {
                         fields.push(el);
                     });
 
-                    let isUseCN = false;//是否使用控件名作为属性名
+                    let isUseCN = false; //是否使用控件名作为属性名
+                    let isUseHide = false; //是否保留隐藏域的内容
                     let needDataByClone = {
+                        win: window, //保留window对象 用来认亲
                         shows: {},
                         hides: {},
                         formId: needData['autoId'],
@@ -1793,18 +1895,41 @@ let components = {
                     };
                     let _pn = isUseCN ? 'lableName' : 'controlName';
                     fields.forEach(el => {
+                        if (!isUseHide && !el['isShow']) {
+                            needDataByClone[el['isShow'] ? 'shows' : 'hides'][el[_pn]] = {
+                                __prop: {
+                                    typeName: el['typeName'],
+                                    controlName: el['controlName'],
+                                    lableName: el['lableName']
+                                }
+                            };
+                            return;
+                        }
                         needDataByClone[el['isShow'] ? 'shows' : 'hides'][el[_pn]] = el['option'];
                         delete el['isShow'];
-                        delete el[_pn];
-                        el['option']['__prop'] = el;//后台属性
+                        delete el['ControlFunc'];
+                        delete el['notlable'];
+                        let easyuiType;
+                        if (el['easyuiType'])
+                            el['easyuiType'] = el['easyuiType'].replace(' auto', '');
+                        easyuiType = el['easyuiType'];
+                        el['option']['__prop'] = el; //后台属性
+                        if ($.fn[easyuiType])
+                            for (let on in el['option']) {
+                                if ((el['option']['__prop']['controlTypeName'] === '无' && on !== '__prop') ||
+                                    $.fn[easyuiType].defaults[on] === el['option'][on]) {
+                                    delete el['option'][on];
+                                }
+                            }
                         delete el['option'];
                     });
-
-                    let cloneFunc = (obj) => {//克隆数据，同时有方法在里面则处理方法
+                    let cloneFunc = (obj) => { //克隆数据，同时有方法在里面则处理方法
+                        let _funcs = [];
                         let addFuncProp = (func) => {
-                            return '$Func$' + func.toLocaleString() + '$Func$';
+                            _funcs.push(func.toLocaleString());
+                            return '$Func$' + (_funcs.length - 1) + '$Func$';
                         };
-                        let findFunc = (obj) => {//遍历取得方法属性
+                        let findFunc = (obj) => { //遍历取得方法属性
                             if (typeof (obj) === 'object') {
                                 for (let _i in obj) {
                                     if (typeof (obj[_i]) === 'function') obj[_i] = addFuncProp(obj[_i]);
@@ -1814,7 +1939,10 @@ let components = {
                         };
                         findFunc(obj);
                         let str = JSON.stringify(obj, null, "\t");
-                        str = str.replace(/\"\$Func\$(.+?)\$Func\$\"/gi, '$1').replace(/\\r\\n/gi, '\n');
+                        _funcs.forEach((e, idx) => {
+                            str = str.replace('"$Func$' + idx + '$Func$"', e);
+                        });
+                        str = str.replace(/\\r\\n/gi, '\n');
                         return str;
                     };
                     let codeObj = {
@@ -1841,14 +1969,76 @@ $$outerHTMLTxt$$
         <script src="~/Scripts/easyUIByVueExten.js"></script>
         <script>
             window.load = function (data) {
-                        $(function () {
-                            let selector = '#' + data.formId + ' ';
+                $(function () {
+                    let selector = '#' + data.formId + ' ';
+                    let els = [], fucs = [], cns = {}, ens = {};
+                    for (let i in data.shows) {
+                        let curEl = data.shows[i];
+                        let _el = $(selector + '#' + i), _option = curEl, _tn = curEl['__prop']['easyuiType'];
+                        _tn && _el[_tn](easyuis.getOption(_el, _option, _tn));//设置属性进行初始化
+                        els.push(_el);//lableName
+                        let _fc = function (op) {
+                            if (!_el[_tn]) console.log(_el, _tn);
+                            return _el[_tn] && _el[_tn].apply(_el, arguments);
+                        };
+                        fucs.push(_fc);
+                        cns[curEl['__prop']['lableName']] = els.length - 1;
+                        ens[curEl['__prop']['controlName']] = els.length - 1;
+                        _el.data('getHasObjFunc', _fc);
+                    }
+                    let getControl, getControls;
+                    $(selector).data('getControl', getControl = (field, isShow, formId, formName) => {
+                        let idx = undefined;
+                        if (cns.hasOwnProperty(field)) idx = cns[field];
+                        if (ens.hasOwnProperty(field)) idx = ens[field];
+                        return idx != undefined && els[idx];
+                    });
+                    $(selector).data('getControls', getControls = () => {
+                        return els;
+                    });
+                    $(selector).data('loadControls', comFunc.get_loadControls(getControl, getControls()));
+                    $(selector).data('vue', {
+                        getVals: function () {
+                            let validateResult = $(selector).form('validate');//验证
+                            if (!validateResult) return null;
+                            let _data = $.serializeObject(selector);
+                            let idx = 0;
                             for (let i in data.shows) {
-                                let _el = $(selector + '#' + i), _option = data.shows[i], _tn = data.shows[i]['__prop']['easyuiType'];
-                                _tn && _el[_tn](easyuis.getOption(_el, _option, _tn));//设置属性进行初始化
+                                let el = data.shows[i]['__prop'];
+                                if (el.controlTypeName === "复选框") {
+                                    _data[el.controlName] = els[idx].prop("checked")
+                                }
+                                if (["Boolean", "Boolean?"].indexOf(el.typeName) !== -1) {
+                                    _data[el.controlName] = eval(_data[el.controlName].toLowerCase());
+                                }
+                                idx++;
                             }
-                        });
-                    };
+                            ['maxResultCount', 'skipCount'].forEach(el => delete _data[el]);//黑名单字段不返回
+                            for (let i in data.hides) {
+                                let el = data.hides[i]['__prop'];
+                                !_data[el.controlName] && delete _data[el.controlName];//隐藏域不存在的值不提交
+                            }
+                            return _data;
+                        },
+                        setVals: function (obj) {
+                            if (!obj) return $(selector).form('clear');
+                            let idx = 0;
+                            for (let i in data.shows) {
+                                let el = data.shows[i]['__prop'];
+                                if (el.controlTypeName === "复选框") {
+                                    els[idx].prop("checked", data[el.controlName]);
+                                }
+                                if (["Boolean", "Boolean?"].indexOf(el.typeName) !== -1) {
+                                    obj[el.controlName] = obj[el.controlName] + ''
+                                }
+                                if (el.easyuiType) fucs[idx]('setValue', obj[el.controlName]);
+                                idx++;
+                            }
+                            $(selector).form('load', obj);
+                        },
+                    });
+                });
+            };
             let datas = {
 $$dataScriptTxt$$
             };
@@ -1856,41 +2046,104 @@ $$dataScriptTxt$$
         </script>
 </body>
 </html>`,
-                        getHtml: function () {
-                            let outerHTMLTxts = '', dataScriptTxts = '';//排版及输出代码
-                            Array.isArray(this.dataArr) && this.dataArr.forEach((el, idx) => {
+                        getHtml: function (isObj = false, _dataArr = null) { //如果需要返回一个对象 则isObj = true
+                            let outerHTMLTxts = '',
+                                dataScriptTxts = ''; //排版及输出代码
+                            let arr = Array.isArray(_dataArr) && _dataArr.length > 0 ? _dataArr : this.dataArr;
+                            Array.isArray(arr) && arr.forEach((el, idx) => {
                                 outerHTMLTxts += `\n---------------------------------------------------------------【DIV：${el.formId}】------------------------------------------------------------------------------\n\t${el.outerHTMLTxt}\n`;
                                 let _html = el.outerHTMLTxt;
                                 delete el.outerHTMLTxt;
+                                let ew = el.win;
+                                delete el.win;
                                 let rStr = cloneFunc(el).replace(/\n/gi, '\n\t\t\t\t\t');
+                                el.win = ew;
                                 if (idx !== 0) dataScriptTxts += `\n`;
                                 dataScriptTxts += `//\t\t\t\t------------【Begin-DIV：${el.formId}】-------------\n\t\t\t\t${el.formId}:${rStr},\n//\t\t\t\t------------【End-DIV：${el.formId}】-------------`;
-                                if (idx !== this.dataArr.length - 1) dataScriptTxts += `\n`;
+                                if (idx !== arr.length - 1) dataScriptTxts += `\n`;
                                 el.outerHTMLTxt = _html;
                             });
+                            console.log('如果需要进一步格式化，请打开链接 \n\t\t（不过这个格式化会把=> 变成 = > 使方法无法识别,以及科学计数法的e会增加空格而产生语法错误 请注意）\n\t\t https://tool.oschina.net/codeformat/js');
+                            if (isObj) {
+                                console.log(dataScriptTxts);
+                                let _returnobj = {
+                                    comScriptTxt: this.comScriptTxt,
+                                    outerHTMLTxts: outerHTMLTxts,
+                                    dataScriptTxts: dataScriptTxts,
+                                };
+                                return _returnobj;
+                            }
                             return this.comScriptTxt.replace(/\$\$outerHTMLTxt\$\$/gi, outerHTMLTxts)
                                 .replace(/\$\$dataScriptTxt\$\$/gi, dataScriptTxts);
+                        },
+                        changeHtml: (win) => { //win就是调用的window 不传递不能确认哪些对象是当前替换需要的
+                            if (!win) return comFunc.alert('win就是调用的window 不传递不能确认哪些对象是当前替换需要的');
+                            let ly = top['layer'] || layer || null;
+                            if (!ly) return comFunc.alert('请先引用layer');
+                            top.changeVal = (val) => {
+                                let m = val.match(/\<\s?e_autoform.+?\>(\s?([^\<]+?)\s?)?\<\/\s?e_autoform\s?\>/g)
+                                if (!m) return val;
+                                let arrs = [];
+                                debugger
+                                for (let i = 0; i < m.length; i++) {
+                                    let curTag = m[i];
+                                    let _curid = eval(curTag.match(/\<\s?e_autoform.+?id=(.+?) /)[1]);
+                                    let da = top["__codeObj"].dataArr.find(el => arrs.indexOf(el) === -1 &&
+                                        el.win === win && el.formId === _curid);
+                                    if (da) {
+                                        arrs.push(da);
+                                        val = val.replace(curTag, da.outerHTMLTxt);
+                                    }
+                                }
+                                let htmlObj = top["__codeObj"].getHtml(true, arrs);
+                                let htmM = htmlObj.comScriptTxt.match(/(\<script\>(.|\s)+\s?\<\/script\>)\s\<\/body\>/);
+                                if (!htmM) return;
+                                htmM = htmM[1].replace(/\$\$dataScriptTxt\$\$/gi, htmlObj.dataScriptTxts);
+                                val = val.replace('<script src="~/Scripts/easyUIByVueExten.js"></script>', '<script src="~/Scripts/easyUIByVueExten.js"></script>\n\t\t\t\t\t' + htmM);
+                                return val;
+                            };
+                            ly.open({
+                                title: '模板代码转换',
+                                area: ['1100px', '700px'],
+                                content: `源代码：<textarea id="source"   cols="140"   rows="15"   style="OVERFLOW:   hidden"></textarea>
+<br/><br/>
+<a onclick="change()">转换</a>
+<br/>
+转换后：<textarea readonly id="code"   cols="140"   rows="15"   style="OVERFLOW:   hidden"></textarea>
+<script>
+function change(){
+let val = document.getElementById('source').value;
+if(top.changeVal) val = top.changeVal(val);
+document.getElementById('code').value=val;
+}
+</script>
+`
+                            });
                         }
                     };
                     //组织个公共js，都调用它 然后尽量把html的属性挪到js来
-                    console.log("如果您需要，请使用\n\t\t top['__codeObj'].getHtml() \n来得到这些自动化控件的代码");
                     top['__codeObj'] = top['__codeObj'] || {};
                     top['__codeObj']['dataArr'] = top['__codeObj']['dataArr'] || [];
                     let _dataArr = top['__codeObj']['dataArr'];
                     top['__codeObj'] = codeObj;
                     _dataArr = _dataArr.concat(codeObj.dataArr);
                     top['__codeObj']['dataArr'] = _dataArr;
+                    if (_dataArr.length > 0)
+                        console.warn("如果您需要，请使用\n\t\t top['__codeObj'].changeHtml(window) \n输入您的源码，即可自动变更成无vue模板版本\n注意，window必须是对应的window，如果您不懂怎么操作，\n建议不用主页面打开，改用路由的方式打开页面，再执行此方法");
                 }
             });
         },
         methods: {
             getVals: function () {
-                var validateResult = $('#' + this.autoId).form('validate');//验证
+                var validateResult = $('#' + this.autoId).form('validate'); //验证
                 if (!validateResult) return null;
                 var data = $.serializeObject('#' + this.autoId);
                 this.fields.filter(el => el.controlTypeName === "复选框").forEach(el => data[el.controlName] = $(el.vue.$el).find('#' + el.controlName).prop("checked"));
-                ['maxResultCount', 'skipCount'].forEach(el => delete data[el]);//黑名单字段不返回
-                this.hideFields.forEach(el => !data[el.controlName] && delete data[el.controlName]);//隐藏域不存在的值不提交
+                ['maxResultCount', 'skipCount'].forEach(el => delete data[el]); //黑名单字段不返回
+                this.hideFields.forEach(el => !data[el.controlName] && delete data[el.controlName]); //隐藏域不存在的值不提交
+                this.fields.filter(el => ["Boolean", "Boolean?"].indexOf(el.typeName) !== -1).forEach(el =>
+                    data[el.controlName] = eval(data[el.controlName].toLowerCase())
+                );
                 return data;
             },
             setVals: function (obj) {
@@ -1936,7 +2189,7 @@ $$dataScriptTxt$$
                     </div>
                    </div>`,
         created: function () {
-            this.$nextTick(function () {//此时模板已经被渲染上去
+            this.$nextTick(function () { //此时模板已经被渲染上去
                 var attrOption = this.$attrs["data-option"] || this.$attrs["dataoption"];
                 try {
                     attrOption = JSON.parse(attrOption.replace(/'/gi, '"'));
@@ -1953,16 +2206,20 @@ $$dataScriptTxt$$
                     cache: false,
                 };
                 var el = $(id);
-                var eCon = new euiControl({ el: el, option: option, typeName: 'dialog' });
+                var eCon = new euiControl({
+                    el: el,
+                    option: option,
+                    typeName: 'dialog'
+                });
                 this.eDialog = el;
                 eCon('close');
                 el.data('vue', this);
-                if (this.hasE_autoform) {//如果包含e_autoform
+                if (this.hasE_autoform) { //如果包含e_autoform
                     var children = this.$children;
                     var getControl, loadControls;
                     $(id).data('getControl', getControl = function (field, isShow, formId, formName) {
-                        var e_autoforms = children.filter(el => el.$options._componentTag === "e_autoform"
-                            && ((!formId && !formName) || (el.$attrs.id === formId || el.$attrs.name === formName))
+                        var e_autoforms = children.filter(el => el.$options._componentTag === "e_autoform" &&
+                            ((!formId && !formName) || (el.$attrs.id === formId || el.$attrs.name === formName))
                         );
                         var results = [];
                         e_autoforms.forEach(el => {
@@ -1974,8 +2231,8 @@ $$dataScriptTxt$$
                         else return results[0];
                     });
                     $(id).data('getControls', (formId, formName) => {
-                        var e_autoforms = children.filter(el => el.$options._componentTag === "e_autoform"
-                            && ((!formId && !formName) || (el.$attrs.id === formId || el.$attrs.name === formName))
+                        var e_autoforms = children.filter(el => el.$options._componentTag === "e_autoform" &&
+                            ((!formId && !formName) || (el.$attrs.id === formId || el.$attrs.name === formName))
                         );
                         var results = [];
                         e_autoforms.forEach(el => {
@@ -1993,8 +2250,9 @@ $$dataScriptTxt$$
         },
         methods: {
             btnSave: function () {
-                if (this.hasE_autoform) {//如果包含e_autoform
-                    var data = {}, hasNoValidate = false;
+                if (this.hasE_autoform) { //如果包含e_autoform
+                    var data = {},
+                        hasNoValidate = false;
                     this.$children.forEach(el => {
                         if (el.$options._componentTag !== "e_autoform") return;
                         var _data = el.getVals();
@@ -2015,21 +2273,74 @@ $$dataScriptTxt$$
     init: function () {
         let componentVue = (i, obj) => {
             if ($(i).length === 0) return;
-            else {//存在则注册并实例化组件
+            else { //存在则注册并实例化组件
                 Vue.component(i, obj);
                 var ids = [];
                 for (let j = 0; j < $(i).length; j++) {
                     var sel = $(i)[j].id;
-                    if (!sel) {//不存在 则产生自动id来注册组件
+                    if (!sel) { //不存在 则产生自动id来注册组件
                         sel = $(i)[j].id = comFunc.getRandomStr(4, (str) => 'autoId' + str);
                     }
                     ids.push("#" + sel);
                 }
-                ids.forEach(id => new Vue({ el: id }));
+                ids.forEach(id => new Vue({
+                    el: id
+                }));
             }
         };
-        this.init = () => { };
+        this.init = () => {};
         for (let i in this) componentVue(i, this[i]);
     }
 };
+let vueHelps = {
+    getColumns: (tag) => { //翻译vue用到的
+        var cols = $(tag).datagrid('options').columns;
+        var props = ['field', 'title', 'width', 'hidden', 'formatter', 'align', 'editor']
+        var returnCols = [];
+        cols.forEach(arr => {
+            if (Array.isArray(arr) && arr.length > 0) {
+                var _arr = [];
+                returnCols.push(_arr);
+                arr.forEach(a => {
+                    if (typeof (a) != 'object') return;
+                    var _obj = {};
+                    _arr.push(_obj);
+                    props.forEach(pn => {
+                        if (pn == 'formatter' && typeof (a[pn]) != 'function') return;
+                        if (a.hasOwnProperty(pn)) _obj[pn] = a[pn];
+                        if (typeof (a[pn]) == 'function') {
+                            //console.log(pn + '存在方法', a);
+                        }
+                        if (pn == 'editor');
+                        //console.log('复制了编辑器，请检查是否包含方法！', a);
+                    });
+                });
+            }
+        });
+        let cloneFunc = (obj) => { //克隆数据，同时有方法在里面则处理方法
+            let _funcs = [];
+            let addFuncProp = (func) => {
+                _funcs.push(func.toLocaleString());
+                return '$Func$' + (_funcs.length - 1) + '$Func$';
+            };
+            let findFunc = (obj) => { //遍历取得方法属性
+                if (typeof (obj) === 'object') {
+                    for (let _i in obj) {
+                        if (typeof (obj[_i]) === 'function') obj[_i] = addFuncProp(obj[_i]);
+                        else findFunc(obj[_i]);
+                    }
+                }
+            };
+            findFunc(obj);
+            let str = JSON.stringify(obj); //, null, -1);
+            _funcs.forEach((e, idx) => {
+                str = str.replace('"$Func$' + idx + '$Func$"', e);
+            });
+            str = str.replace(/\\r\\n/gi, '\n');
+            return str;
+        };
+        console.log(cloneFunc(returnCols));
+    }
+}
 components.init();
+console.log('代码github：   https://github.com/xianrui69/modelToVueControl/');
